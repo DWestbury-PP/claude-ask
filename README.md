@@ -4,11 +4,11 @@ A simple, fast command-line tool to interact with Claude AI directly from your t
 
 ## Features
 
-- 🚀 Quick one-shot questions to Claude
-- 📋 Pipe command output for analysis
-- ⚡ Shows a spinner during API calls (like docker-compose)
-- 🔧 Works on macOS (Apple Silicon), Intel-based RHEL, and AMD-based Ubuntu
-- 🔐 Secure API key management via `.env` files
+- Quick one-shot questions to Claude
+- Pipe command output for analysis
+- Shows a spinner during API calls (like docker-compose)
+- Works on macOS (Apple Silicon), Intel-based RHEL, and AMD-based Ubuntu
+- Secure API key management via `.env` files
 
 ## Requirements
 
@@ -140,4 +140,3 @@ ANTHROPIC_API_KEY=sk-ant-api03-xxx
 ## License
 
 This tool is provided as-is for personal and commercial use.
-
