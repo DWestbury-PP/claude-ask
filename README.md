@@ -1,4 +1,6 @@
 # ask - Claude AI Command-Line Tool
+![Example usage of ask CLI](./assets/terminal_example.png)
+
 
 A simple, fast command-line tool to interact with Claude AI directly from your terminal.
 
