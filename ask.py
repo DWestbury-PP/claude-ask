@@ -10,6 +10,8 @@ from datetime import datetime
 import anthropic
 from dotenv import load_dotenv
 from yaspin import yaspin
+from rich.console import Console
+from rich.markdown import Markdown
 
 
 def load_api_key():
@@ -80,7 +82,13 @@ def get_system_prompt():
     Generate the system prompt with current date and time.
     """
     current_datetime = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p %Z")
-    return f"You are a helpful DevOps assistant. The current date and time is: {current_datetime}"
+    return f"""You are a helpful DevOps assistant. The current date and time is: {current_datetime}
+
+When responding, format your answers for optimal terminal readability:
+- Use emojis to make output more engaging and scannable
+- Use markdown formatting (headers, bold, code blocks, lists) to structure your response
+- Keep responses concise and well-organized
+- Use bullet points and numbered lists where appropriate"""
 
 
 def ask_claude(api_key, prompt, system_prompt):
@@ -121,18 +129,20 @@ def main():
     """
     # Load API key
     api_key = load_api_key()
-    
+
     # Get user input
     prompt = get_input()
-    
+
     # Get system prompt
     system_prompt = get_system_prompt()
-    
+
     # Ask Claude
     response = ask_claude(api_key, prompt, system_prompt)
-    
-    # Print the response
-    print(response)
+
+    # Print the response with rich formatting
+    console = Console()
+    md = Markdown(response)
+    console.print(md)
 
 
 if __name__ == '__main__':

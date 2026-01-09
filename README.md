@@ -8,6 +8,7 @@ A simple, fast command-line tool to interact with Claude AI directly from your t
 
 - Quick one-shot questions to Claude
 - Pipe command output for analysis
+- Beautiful terminal output with colors, formatting, and emojis
 - Shows a spinner during API calls (like docker-compose)
 - Works on macOS (Apple Silicon), Intel-based RHEL, and AMD-based Ubuntu
 - Secure API key management via `.env` files
@@ -97,7 +98,7 @@ The tool:
 2. Accepts input from command-line arguments and/or stdin (pipes)
 3. Sends your question to Claude AI (using the `claude-sonnet-4-20250514` model)
 4. Displays a spinner while waiting for the response
-5. Prints Claude's answer to stdout
+5. Renders Claude's answer with rich terminal formatting (colors, emojis, and markdown)
 
 ## Platform Compatibility
 
@@ -138,6 +139,7 @@ ANTHROPIC_API_KEY=sk-ant-api03-xxx
 - `anthropic` - Official Anthropic Python SDK
 - `python-dotenv` - Load environment variables from .env files
 - `yaspin` - Terminal spinner for better UX
+- `rich` - Beautiful terminal formatting with colors and markdown rendering
 
 ## License
 
