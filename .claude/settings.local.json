@@ -20,7 +20,9 @@
       "Bash(.venv/bin/python -c \"\nimport anthropic\nclient = anthropic.Anthropic\\(api_key=''test''\\)\nprint\\(''Has beta:'', hasattr\\(client, ''beta''\\)\\)\nif hasattr\\(client, ''beta''\\):\n    print\\(''Has messages:'', hasattr\\(client.beta, ''messages''\\)\\)\n    if hasattr\\(client.beta, ''messages''\\):\n        print\\(''Has tool_runner:'', hasattr\\(client.beta.messages, ''tool_runner''\\)\\)\n        if hasattr\\(client.beta.messages, ''tool_runner''\\):\n            import inspect\n            sig = inspect.signature\\(client.beta.messages.tool_runner\\)\n            print\\(''Signature:'', sig\\)\n\")",
       "Bash(.venv/bin/python:*)",
       "Bash(cd /Users/dwestbury/Documents/Source\\\\ Code/Python/Claude/ask-claude && ASK_ENABLE_TOOLS=false .venv/bin/python:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(cd /Users/dwestbury/Documents/Source\\\\ Code/Python/Claude/ask-claude && pip install -e .:*)",
+      "Bash(.venv/bin/ask \"What''s the current weather in zip code 07458?\")"
     ]
   }
 }

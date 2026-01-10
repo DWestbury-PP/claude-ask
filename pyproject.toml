@@ -21,6 +21,7 @@ dependencies = [
 [project.scripts]
 ask = "ask:main"
 
-[tool.setuptools]
-py-modules = ["ask"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ask*"]
 
