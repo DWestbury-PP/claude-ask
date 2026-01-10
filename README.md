@@ -6,9 +6,13 @@ A simple, fast command-line tool to interact with Claude AI directly from your t
 
 ## Features
 
-- Quick one-shot questions to Claude
-- Pipe command output for analysis
-- Beautiful terminal output with colors, formatting, and emojis
+- **Web Search Integration**: Claude can search the web for current information when needed
+- **Session-Based Conversations**: Maintain conversation context across multiple queries
+- **Quick one-shot questions** to Claude
+- **Pipe command output** for analysis
+- **Beautiful terminal output** with colors, formatting, and emojis
+- **Smart tool usage**: Claude intelligently decides when web search adds value
+- **Configurable**: Control tools, domain filtering, and session behavior
 - Shows a spinner during API calls (like docker-compose)
 - Works on macOS (Apple Silicon), Intel-based RHEL, and AMD-based Ubuntu
 - Secure API key management via `.env` files
@@ -91,14 +95,117 @@ git diff | ask "summarize these changes"
 docker ps | ask "are any of these containers unhealthy?"
 ```
 
+### Web search for current information
+
+Claude automatically searches the web when you ask about current events, recent data, or time-sensitive information:
+
+```bash
+ask "What were the major tech announcements at CES 2026?"
+```
+
+```bash
+ask "What's the latest version of Python and what are its new features?"
+```
+
+```bash
+ask "Current weather in San Francisco"
+```
+
+For general knowledge questions, Claude responds directly without web search:
+
+```bash
+ask "What is Docker?"  # No web search needed
+```
+
+### Session-based conversations
+
+Enable conversation persistence within a terminal session:
+
+```bash
+# Set a session ID to maintain context across queries
+export ASK_SESSION_ID=$(uuidgen)
+
+# First query
+ask "What is Kubernetes?"
+
+# Follow-up query - Claude remembers the previous conversation
+ask "How does it compare to Docker Swarm?"
+
+# Another follow-up
+ask "Which one should I choose for a small team?"
+```
+
+Without `ASK_SESSION_ID`, each query is independent (backward compatible).
+
 ## How It Works
 
 The tool:
 1. Reads your Anthropic API key from a `.env` file
-2. Accepts input from command-line arguments and/or stdin (pipes)
-3. Sends your question to Claude AI (using the `claude-sonnet-4-20250514` model)
-4. Displays a spinner while waiting for the response
-5. Renders Claude's answer with rich terminal formatting (colors, emojis, and markdown)
+2. Loads configuration (tools, session settings, etc.)
+3. Accepts input from command-line arguments and/or stdin (pipes)
+4. Manages conversation sessions (if `ASK_SESSION_ID` is set)
+5. Sends your question to Claude AI (using the `claude-sonnet-4-20250514` model)
+6. Claude intelligently decides whether to use web search based on your query
+7. Displays a spinner while waiting for the response
+8. Renders Claude's answer with rich terminal formatting (colors, emojis, and markdown)
+9. Saves conversation history to session (if applicable)
+
+## Advanced Configuration
+
+You can customize the tool's behavior using environment variables in your `.env` file:
+
+### Tool Configuration
+
+```bash
+# Enable/disable all tools (default: true)
+ASK_ENABLE_TOOLS=true
+
+# Enable/disable web search specifically (default: true)
+ASK_ENABLE_WEB_SEARCH=true
+
+# Maximum number of web searches per query (default: 5)
+ASK_WEB_SEARCH_MAX_USES=5
+```
+
+### Domain Filtering
+
+Control which domains Claude can search (use only one):
+
+```bash
+# Only allow specific domains
+ASK_ALLOWED_DOMAINS=wikipedia.org,github.com,stackoverflow.com
+
+# OR block specific domains
+ASK_BLOCKED_DOMAINS=example.com,spam-site.com
+```
+
+### Model Configuration
+
+```bash
+# Change the Claude model (default: claude-sonnet-4-20250514)
+ASK_MODEL=claude-sonnet-4-20250514
+
+# Adjust maximum response tokens (default: 4096)
+ASK_MAX_TOKENS=4096
+```
+
+### Session Management
+
+```bash
+# Session timeout in hours (default: 24)
+ASK_SESSION_TIMEOUT_HOURS=24
+
+# Enable session persistence in your shell (add to ~/.bashrc or ~/.zshrc)
+export ASK_SESSION_ID=$(uuidgen)
+```
+
+### Disable Tools for Simple Queries
+
+If you want the old behavior (no web search, faster responses for simple questions):
+
+```bash
+ASK_ENABLE_TOOLS=false ask "What is Python?"
+```
 
 ## Platform Compatibility
 
@@ -128,10 +235,27 @@ python3 --version
 
 ## Example .env File
 
-See `example.env` for a template:
+See `example.env` for a complete template with all available options:
 
-```
+```bash
+# Required
 ANTHROPIC_API_KEY=sk-ant-api03-xxx
+
+# Optional: Model configuration
+# ASK_MODEL=claude-sonnet-4-20250514
+# ASK_MAX_TOKENS=4096
+
+# Optional: Tool configuration
+# ASK_ENABLE_TOOLS=true
+# ASK_ENABLE_WEB_SEARCH=true
+# ASK_WEB_SEARCH_MAX_USES=5
+
+# Optional: Domain filtering
+# ASK_ALLOWED_DOMAINS=wikipedia.org,github.com
+# ASK_BLOCKED_DOMAINS=example.com
+
+# Optional: Session management
+# ASK_SESSION_TIMEOUT_HOURS=24
 ```
 
 ## Dependencies

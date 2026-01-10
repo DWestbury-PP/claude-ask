@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "WebSearch",
+      "Bash(find . -type f -name *.json -o -name *.config)",
+      "Bash(cd /Users/dwestbury/Documents/Source Code/Python/Claude/ask-claude && pip show:*)",
+      "Bash(grep -r search --include=*.py --include=*.md --include=*.txt .)",
+      "WebFetch(domain:dev.to)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(git log --all --oneline --grep=\"mcp\\\\|MCP\\\\|search\\\\|web\" -i)",
+      "Bash(cd:*)",
+      "Bash(ls:*)",
+      "Bash(grep -r \"package.json\\\\|npm\\\\|node\" --include=*.md --include=*.txt .)",
+      "Bash(. .venv/bin/activate)",
+      "Bash(.venv/bin/python ask.py \"What is Docker?\")",
+      "Bash(.venv/bin/python -c \"from anthropic.types.beta import BetaWebSearchTool20250305Param; import inspect; print\\(inspect.signature\\(BetaWebSearchTool20250305Param\\)\\)\")",
+      "Bash(.venv/bin/python -c \"\nfrom ask.config import AskConfig\nfrom ask.tools import get_enabled_tools\nconfig = AskConfig.from_env\\(\\)\ntools = get_enabled_tools\\(config\\)\nimport json\nprint\\(json.dumps\\(tools, indent=2\\)\\)\n\")",
+      "Bash(.venv/bin/python -c \"\nimport anthropic\nclient = anthropic.Anthropic\\(api_key=''test''\\)\nprint\\(''Has beta:'', hasattr\\(client, ''beta''\\)\\)\nif hasattr\\(client, ''beta''\\):\n    print\\(''Has messages:'', hasattr\\(client.beta, ''messages''\\)\\)\n    if hasattr\\(client.beta, ''messages''\\):\n        print\\(''Has tool_runner:'', hasattr\\(client.beta.messages, ''tool_runner''\\)\\)\n        if hasattr\\(client.beta.messages, ''tool_runner''\\):\n            import inspect\n            sig = inspect.signature\\(client.beta.messages.tool_runner\\)\n            print\\(''Signature:'', sig\\)\n\")",
+      "Bash(.venv/bin/python:*)",
+      "Bash(cd /Users/dwestbury/Documents/Source\\\\ Code/Python/Claude/ask-claude && ASK_ENABLE_TOOLS=false .venv/bin/python:*)",
+      "Bash(cat:*)"
+    ]
+  }
+}

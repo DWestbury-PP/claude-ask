@@ -4,45 +4,15 @@ ask - A command-line tool to interact with Claude AI
 """
 
 import sys
-import os
-from pathlib import Path
 from datetime import datetime
 import anthropic
-from dotenv import load_dotenv
 from yaspin import yaspin
 from rich.console import Console
 from rich.markdown import Markdown
 
-
-def load_api_key():
-    """
-    Load the Anthropic API key from .env file.
-    Tries current directory first, then falls back to ~/.config/ask/.env
-    """
-    # Try current directory
-    if Path('.env').exists():
-        load_dotenv('.env')
-    else:
-        # Try config directory
-        config_path = Path.home() / '.config' / 'ask' / '.env'
-        if config_path.exists():
-            load_dotenv(config_path)
-    
-    api_key = os.getenv('ANTHROPIC_API_KEY')
-    
-    if not api_key:
-        print("Error: ANTHROPIC_API_KEY environment variable is not set.", file=sys.stderr)
-        print("", file=sys.stderr)
-        print("To fix this:", file=sys.stderr)
-        print("  1. Get your API key from https://console.anthropic.com/settings/keys", file=sys.stderr)
-        print("  2. Create a .env file in one of these locations:", file=sys.stderr)
-        print("     - Current directory: .env", file=sys.stderr)
-        print("     - Config directory: ~/.config/ask/.env", file=sys.stderr)
-        print("  3. Add this line to the file:", file=sys.stderr)
-        print("     ANTHROPIC_API_KEY=your-key-here", file=sys.stderr)
-        sys.exit(1)
-    
-    return api_key
+from ask.config import AskConfig
+from ask.session import SessionManager
+from ask.agent_loop import run_agent_loop
 
 
 def get_input():
@@ -77,12 +47,13 @@ def get_input():
     return prompt
 
 
-def get_system_prompt():
+def get_system_prompt(enable_tools: bool = True):
     """
-    Generate the system prompt with current date and time.
+    Generate system prompt with current date and tool guidance.
     """
     current_datetime = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p %Z")
-    return f"""You are a helpful DevOps assistant. The current date and time is: {current_datetime}
+
+    base_prompt = f"""You are a helpful DevOps assistant. The current date and time is: {current_datetime}
 
 When responding, format your answers for optimal terminal readability:
 - Use emojis to make output more engaging and scannable
@@ -90,18 +61,42 @@ When responding, format your answers for optimal terminal readability:
 - Keep responses concise and well-organized
 - Use bullet points and numbered lists where appropriate"""
 
+    if enable_tools:
+        tool_guidance = """
 
-def ask_claude(api_key, prompt, system_prompt):
+You have access to a web_search tool that can find current information from the internet.
+
+When to use web_search:
+- For current events, news, or time-sensitive information
+- When you need to verify recent data or statistics
+- For documentation, package versions, or API references
+- When the user asks about something that requires up-to-date information
+- When your knowledge cutoff (January 2025) might make your response outdated
+
+When NOT to use web_search:
+- For general knowledge questions you can answer confidently
+- For coding or technical questions within your expertise
+- When analyzing user-provided data (piped input)
+- For simple calculations or transformations
+
+Be judicious with web searches - use them when they add real value, not reflexively."""
+
+        return base_prompt + tool_guidance
+
+    return base_prompt
+
+
+def ask_claude(config, prompt, system_prompt):
     """
     Send the prompt to Claude API and return the response.
     """
     try:
-        client = anthropic.Anthropic(api_key=api_key)
-        
+        client = anthropic.Anthropic(api_key=config.api_key)
+
         with yaspin(text="Thinking...", color="cyan") as spinner:
             message = client.messages.create(
-                model="claude-sonnet-4-20250514",
-                max_tokens=4096,
+                model=config.model,
+                max_tokens=config.max_tokens,
                 system=system_prompt,
                 messages=[
                     {
@@ -127,17 +122,30 @@ def main():
     """
     Main entry point for the ask command.
     """
-    # Load API key
-    api_key = load_api_key()
+    # Load configuration
+    config = AskConfig.from_env()
 
     # Get user input
     prompt = get_input()
 
-    # Get system prompt
-    system_prompt = get_system_prompt()
+    # Initialize API client
+    client = anthropic.Anthropic(api_key=config.api_key)
 
-    # Ask Claude
-    response = ask_claude(api_key, prompt, system_prompt)
+    # Get system prompt
+    system_prompt = get_system_prompt(enable_tools=config.enable_tools)
+
+    # Determine whether to use agent loop or simple query
+    if config.enable_tools:
+        # Initialize session manager
+        session_manager = SessionManager(config)
+        session_manager.cleanup_expired_sessions()
+        session = session_manager.get_or_create_session()
+
+        # Run agent loop with tools
+        response = run_agent_loop(client, config, session, prompt, system_prompt)
+    else:
+        # Fallback to simple query (backward compatible)
+        response = ask_claude(config, prompt, system_prompt)
 
     # Print the response with rich formatting
     console = Console()
